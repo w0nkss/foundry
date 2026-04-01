@@ -3,6 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import SkillSelector from './SkillSelector'
+import BackButton from '@/components/BackButton'
+
+// Handles both old format ("React, Python") and new format (JSON array)
+function parseSkills(skills) {
+  try {
+    return JSON.parse(skills)
+  } catch {
+    return skills.split(',').map((s) => s.trim()).filter(Boolean)
+  }
+}
 
 // Reusable styles to keep the form consistent
 const inputStyle = {
@@ -32,7 +43,7 @@ export default function EditProfilePage() {
     name: '',
     headline: '',
     bio: '',
-    skills: '',
+    skills: [],
     building_now: '',
     past_projects: '',
     availability_status: '',
@@ -62,7 +73,7 @@ export default function EditProfilePage() {
           name: profile.name || '',
           headline: profile.headline || '',
           bio: profile.bio || '',
-          skills: profile.skills || '',
+          skills: profile.skills ? parseSkills(profile.skills) : [],
           building_now: profile.building_now || '',
           past_projects: profile.past_projects || '',
           availability_status: profile.availability_status || '',
@@ -90,9 +101,10 @@ export default function EditProfilePage() {
     const { data: { user } } = await supabase.auth.getUser()
 
     // upsert = insert if no profile exists, update if one does
+    // skills is an array so we serialize it to a JSON string for storage
     const { error } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, ...form })
+      .upsert({ id: user.id, ...form, skills: JSON.stringify(form.skills) })
 
     if (error) {
       setError(error.message)
@@ -107,6 +119,7 @@ export default function EditProfilePage() {
 
   return (
     <main style={{ maxWidth: '600px', margin: '64px auto', padding: '0 16px' }}>
+      <BackButton />
       <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px' }}>
         Edit Profile
       </h1>
@@ -151,15 +164,10 @@ export default function EditProfilePage() {
         </div>
 
         <div style={fieldStyle}>
-          <label htmlFor="skills">Skills</label>
-          <input
-            id="skills"
-            name="skills"
-            type="text"
-            placeholder="e.g. React, Python, UI Design"
-            value={form.skills}
-            onChange={handleChange}
-            style={inputStyle}
+          <label>Skills</label>
+          <SkillSelector
+            selected={form.skills}
+            onChange={(skills) => setForm({ ...form, skills })}
           />
         </div>
 

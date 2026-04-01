@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -28,6 +29,7 @@ export default function LoginPage() {
 
   return (
     <main style={{ maxWidth: '400px', margin: '64px auto', padding: '0 16px' }}>
+      <BackButton />
       <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px' }}>
         Log in
       </h1>

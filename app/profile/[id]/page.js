@@ -1,4 +1,15 @@
 import { createClient } from '@/utils/supabase/server'
+import { getSkillColor } from '@/utils/skills'
+import BackButton from '@/components/BackButton'
+
+// Handles both old format ("React, Python") and new format (JSON array)
+function parseSkills(skills) {
+  try {
+    return JSON.parse(skills)
+  } catch {
+    return skills.split(',').map((s) => s.trim()).filter(Boolean)
+  }
+}
 
 export default async function ProfilePage({ params }) {
   const { id } = await params
@@ -20,6 +31,8 @@ export default async function ProfilePage({ params }) {
 
   return (
     <main style={{ maxWidth: '600px', margin: '64px auto', padding: '0 16px' }}>
+
+      <BackButton />
 
       {/* Name and headline */}
       <h1 style={{ fontSize: '28px', fontWeight: 'bold' }}>{profile.name}</h1>
@@ -46,24 +59,43 @@ export default async function ProfilePage({ params }) {
         </section>
       )}
 
-      {/* Skills */}
+      {/* Skills — rendered as Discord-style role badges */}
       {profile.skills && (
         <section style={{ marginBottom: '32px' }}>
-          <h2 style={{ fontWeight: 'bold', marginBottom: '8px' }}>Skills</h2>
+          <h2 style={{ fontWeight: 'bold', marginBottom: '12px' }}>Skills</h2>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {profile.skills.split(',').map((skill) => (
-              <span
-                key={skill}
-                style={{
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: '999px',
-                  padding: '4px 12px',
-                  fontSize: '14px',
-                }}
-              >
-                {skill.trim()}
-              </span>
-            ))}
+            {parseSkills(profile.skills).map((skill) => {
+              const color = getSkillColor(skill)
+              return (
+                <span
+                  key={skill}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '4px 10px',
+                    borderRadius: '999px',
+                    fontSize: '13px',
+                    border: `1px solid ${color}`,
+                    backgroundColor: `${color}15`,
+                    color: color,
+                    fontWeight: '600',
+                  }}
+                >
+                  {/* Colored dot */}
+                  <span
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      backgroundColor: color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  #{skill}
+                </span>
+              )
+            })}
           </div>
         </section>
       )}

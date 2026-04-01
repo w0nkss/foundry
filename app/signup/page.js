@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -27,6 +28,7 @@ export default function SignupPage() {
 
   return (
     <main style={{ maxWidth: '400px', margin: '64px auto', padding: '0 16px' }}>
+      <BackButton />
       <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px' }}>
         Create an account
       </h1>
